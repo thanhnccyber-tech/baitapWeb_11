@@ -2,6 +2,7 @@ package vn.utepro.controller;
 
 import vn.utepro.entity.Cart_24162115;
 import vn.utepro.entity.CartItem_24162115;
+import vn.utepro.entity.OrderStatus_24162115;
 import vn.utepro.entity.Product_24162115;
 import vn.utepro.entity.Users_24162115;
 import vn.utepro.service.CartService_24162115;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +23,8 @@ import java.util.Map;
         "/cart/update",
         "/cart/remove",
         "/cart/checkout",
-        "/cart/order-success"
+        "/cart/order-success",
+        "/orders"
 })
 public class CartController_24162115 extends HttpServlet {
 
@@ -77,6 +80,10 @@ public class CartController_24162115 extends HttpServlet {
                    .forward(req, resp);
                 break;
             }
+
+            case "/orders":
+                showOrderHistory(req, resp, user);
+                break;
 
             default:
                 resp.sendRedirect(req.getContextPath() + "/cart");
@@ -141,7 +148,6 @@ public class CartController_24162115 extends HttpServlet {
             req.getSession().setAttribute("cartError", err);
         }
 
-        // Quay lại trang trước nếu có, mặc định về /cart
         String back = req.getParameter("back");
         if (back != null && !back.isEmpty()) {
             resp.sendRedirect(back);
@@ -224,6 +230,71 @@ public class CartController_24162115 extends HttpServlet {
             req.getSession().setAttribute("cartError", err);
             resp.sendRedirect(req.getContextPath() + "/cart");
         }
+    }
+
+    // ========== LỊCH SỬ ĐẶT HÀNG ==========
+
+    private void showOrderHistory(HttpServletRequest req, HttpServletResponse resp,
+                                  Users_24162115 user)
+            throws ServletException, IOException {
+
+        // ----- 1. Đọc tham số lọc trạng thái -----
+        String statusParam = req.getParameter("status");
+        Integer status = null;
+        if (statusParam != null && !statusParam.isEmpty()
+                && !"all".equals(statusParam)) {
+            try {
+                status = Integer.parseInt(statusParam);
+            } catch (NumberFormatException ignored) { /* giữ null = tất cả */ }
+        }
+
+        // ----- 2. Lấy danh sách đơn hàng -----
+        List<Cart_24162115> orders = (status == null)
+                ? cartService.getOrderHistory(user.getUserId())
+                : cartService.getOrderHistoryByStatus(user.getUserId(), status);
+
+        // ----- 3. Chuẩn bị dữ liệu kèm theo (items, products, total) -----
+        Map<String, List<CartItem_24162115>> orderItemsMap = new HashMap<>();
+        Map<String, Float> orderTotalMap = new HashMap<>();
+        Map<Integer, Product_24162115> productMap = new HashMap<>();
+
+        for (Cart_24162115 order : orders) {
+            List<CartItem_24162115> items =
+                    cartService.getCartItems(order.getCartId());
+            orderItemsMap.put(order.getCartId(), items);
+
+            float total = 0f;
+            for (CartItem_24162115 it : items) {
+                total += it.getUnitPrice() * it.getQuantity();
+                if (!productMap.containsKey(it.getProductId())) {
+                    Product_24162115 p = prodService.findById(
+                            Product_24162115.class, it.getProductId());
+                    if (p != null) productMap.put(p.getProductId(), p);
+                }
+            }
+            orderTotalMap.put(order.getCartId(), total);
+        }
+
+        // ----- 4. Danh sách trạng thái cho các tab lọc -----
+        Map<Integer, String> statusOptions = new LinkedHashMap<>();
+        statusOptions.put(OrderStatus_24162115.NEW,       "Đơn hàng mới");
+        statusOptions.put(OrderStatus_24162115.CONFIRMED, "Đã xác nhận");
+        statusOptions.put(OrderStatus_24162115.PREPARING, "Chuẩn bị hàng");
+        statusOptions.put(OrderStatus_24162115.SHIPPING,  "Vận chuyển");
+        statusOptions.put(OrderStatus_24162115.DELIVERED, "Đã giao");
+        statusOptions.put(OrderStatus_24162115.CANCELLED, "Đơn hàng hủy");
+        statusOptions.put(OrderStatus_24162115.RETURNED,  "Đơn hàng hoàn");
+
+        // ----- 5. Đẩy sang view -----
+        req.setAttribute("orders", orders);
+        req.setAttribute("orderItemsMap", orderItemsMap);
+        req.setAttribute("orderTotalMap", orderTotalMap);
+        req.setAttribute("productMap", productMap);
+        req.setAttribute("currentStatus", status);
+        req.setAttribute("statusOptions", statusOptions);
+
+        req.getRequestDispatcher("/WEB-INF/views/shop/order-history.jsp")
+           .forward(req, resp);
     }
 
     // ========== UTIL ==========

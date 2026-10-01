@@ -651,3 +651,67 @@ h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -.02em; }
 /* Utility spacing */
 .mt-section { margin-top: 3rem; }
 .mb-section { margin-bottom: 3rem; }
+
+/* ============ ORDER STATUS BADGES ============ */
+.badge-new        { background: #dbeafe; color: #1e40af; }
+.badge-confirmed  { background: #cffafe; color: #155e75; }
+.badge-preparing  { background: #fef3c7; color: #92400e; }
+.badge-shipping   { background: #ede9fe; color: #5b21b6; }
+.badge-delivered  { background: #d1fae5; color: #065f46; }
+.badge-cancelled  { background: #fee2e2; color: #991b1b; }
+.badge-returned   { background: #fce7f3; color: #9d174d; }
+
+/* ============ ORDER HISTORY ============ */
+.order-status-tabs .nav-link {
+    border-radius: 999px;
+    background: #fff;
+    color: var(--dark);
+    border: 1.5px solid var(--border);
+    font-weight: 600;
+    font-size: .85rem;
+    padding: .45rem 1rem;
+    transition: all .2s;
+}
+.order-status-tabs .nav-link:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.order-status-tabs .nav-link.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(99,102,241,.3);
+}
+
+.order-card {
+    padding: 1.15rem 1.25rem;
+}
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    padding-bottom: .85rem;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: .85rem;
+}
+.order-card-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: .9rem;
+    color: #334155;
+    margin-bottom: .85rem;
+}
+.order-card-info i { margin-right: .25rem; }
+.order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding-top: .85rem;
+    border-top: 1px dashed var(--border);
+    margin-top: .35rem;
+}

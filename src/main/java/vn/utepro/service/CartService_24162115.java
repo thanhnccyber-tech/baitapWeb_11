@@ -5,6 +5,7 @@ import vn.utepro.dao.CartItemDao_24162115;
 import vn.utepro.dao.ProductDao_24162115;
 import vn.utepro.entity.Cart_24162115;
 import vn.utepro.entity.CartItem_24162115;
+import vn.utepro.entity.OrderStatus_24162115;
 import vn.utepro.entity.Product_24162115;
 
 import java.util.Date;
@@ -147,7 +148,7 @@ public class CartService_24162115 {
      *  - validate thông tin giao hàng
      *  - kiểm tra tồn kho, trừ kho
      *  - lưu receiverName / receiverPhone / shippingAddress vào Cart
-     *  - chuyển cart.status = 1 và set buyDate = now
+     *  - chuyển cart.status = NEW (1) và set buyDate = now
      * @return null nếu thành công, ngược lại là thông báo lỗi.
      */
     public String checkout(int userId,
@@ -191,13 +192,26 @@ public class CartService_24162115 {
         cart.setReceiverName(receiverName.trim());
         cart.setReceiverPhone(receiverPhone.trim());
         cart.setShippingAddress(shippingAddress.trim());
-        cart.setStatus(1);
+        cart.setStatus(OrderStatus_24162115.NEW);   // = 1: Đơn hàng mới
         cart.setBuyDate(new Date());
         cartDao.update(cart);
         return null;
     }
 
+    // ========== LỊCH SỬ ĐẶT HÀNG ==========
+
+    /** Lấy TẤT CẢ đơn hàng (status >= 1) của user. */
     public List<Cart_24162115> getOrderHistory(int userId) {
         return cartDao.findOrderHistory(userId);
+    }
+
+    /** Lọc theo 1 trạng thái (NEW / CONFIRMED / ... / RETURNED). */
+    public List<Cart_24162115> getOrderHistoryByStatus(int userId, int status) {
+        return cartDao.findOrderHistoryByStatus(userId, status);
+    }
+
+    /** Lấy 1 đơn hàng theo cartId. */
+    public Cart_24162115 getOrderById(String cartId) {
+        return cartDao.findById(Cart_24162115.class, cartId);
     }
 }

@@ -59,6 +59,11 @@
                             </c:if>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/orders">
+                            <i class="fas fa-history"></i> Đơn hàng của tôi
+                        </a>
+                    </li>
                 </c:if>
                 <c:if test="${sessionScope.user != null && sessionScope.user.roleId == 1}">
                     <li class="nav-item dropdown">

@@ -23,14 +23,31 @@ public class CartDao_24162115 extends GenericDaoImpl_24162115<Cart_24162115> {
         }
     }
 
-    /** Lấy lịch sử đơn hàng (đã đặt, status = 1) của user. */
+    /** Lấy TẤT CẢ đơn hàng (status >= 1) — dùng cho tab "Tất cả". */
     public List<Cart_24162115> findOrderHistory(int userId) {
         EntityManager em = JpaUtil_24162115.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT c FROM Cart c WHERE c.userId = :uid AND c.status = 1 ORDER BY c.buyDate DESC",
+                    "SELECT c FROM Cart c WHERE c.userId = :uid AND c.status >= 1 "
+                  + "ORDER BY c.buyDate DESC",
                     Cart_24162115.class)
                     .setParameter("uid", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /** Lọc đơn hàng theo 1 trạng thái cụ thể. */
+    public List<Cart_24162115> findOrderHistoryByStatus(int userId, int status) {
+        EntityManager em = JpaUtil_24162115.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT c FROM Cart c WHERE c.userId = :uid AND c.status = :status "
+                  + "ORDER BY c.buyDate DESC",
+                    Cart_24162115.class)
+                    .setParameter("uid", userId)
+                    .setParameter("status", status)
                     .getResultList();
         } finally {
             em.close();
@@ -42,7 +59,8 @@ public class CartDao_24162115 extends GenericDaoImpl_24162115<Cart_24162115> {
         EntityManager em = JpaUtil_24162115.getEntityManager();
         try {
             List<Cart_24162115> list = em.createQuery(
-                    "SELECT c FROM Cart c WHERE c.userId = :uid AND c.status = 1 ORDER BY c.buyDate DESC",
+                    "SELECT c FROM Cart c WHERE c.userId = :uid AND c.status >= 1 "
+                  + "ORDER BY c.buyDate DESC",
                     Cart_24162115.class)
                     .setParameter("uid", userId)
                     .setMaxResults(1)

@@ -41,4 +41,24 @@ public class Cart_24162115 {
 
     public String getShippingAddress() { return shippingAddress; }
     public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
+
+    // ============== HELPER CHO JSP EL ==============
+
+    /** Tên trạng thái tiếng Việt, ví dụ: "Đã xác nhận" */
+    @Transient
+    public String getStatusName() {
+        return OrderStatus_24162115.getName(this.status);
+    }
+
+    /** Class CSS cho badge, ví dụ: "badge-confirmed" */
+    @Transient
+    public String getStatusBadgeClass() {
+        return OrderStatus_24162115.getBadgeClass(this.status);
+    }
+
+    /** Icon Font Awesome, ví dụ: "fa-check" */
+    @Transient
+    public String getStatusIcon() {
+        return OrderStatus_24162115.getIcon(this.status);
+    }
 }
